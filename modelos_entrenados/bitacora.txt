@@ -1,0 +1,5 @@
+ 
+        ----------------model_11------------------
+        columns: 
+        ['children', 'region_southeast', 'bmi', 'region_southwest', 'smoker_yes', 'region_northwest', 'age', 'sex_male']
+

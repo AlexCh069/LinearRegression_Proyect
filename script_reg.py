@@ -1,13 +1,15 @@
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
-import math 
 from sklearn.metrics import mean_absolute_percentage_error, mean_squared_error, max_error, r2_score
+from scipy import stats
+import math 
 import statsmodels.api as sm
 import numpy as np
-from scipy import stats
 import pandas as pd
-
+import re 
+import os 
+import joblib
 
 def train_test(data: pd.DataFrame, target_name: str):
 
@@ -120,4 +122,53 @@ def analysis_train(x_train, y_train, df:pd.DataFrame, target_name:str):
     }
 
     return resultados
-    
+
+
+
+def save_model(model,data: pd.DataFrame, target_name:str, comentario_bitacora = None):
+    """Esta funcion se encarga de guardar el modelo creado, y ademas almacenar en una bitacora
+    los nombres de las columnas que se usaron para el modelo. Por ende es necesario ser especifico
+    al momento de crear el nombre de las columnas ya que estas nos daran pistas sobre si sufrieron 
+    alguna transformacion respecto a las columnas del dataframe original"""
+
+    # Variables independientes y dependiente
+    X_cols = list(set(data.columns) - set([target_name]))
+    Y_cols = target_name
+
+
+    # Almacenado del modelo entrenado
+
+    archivos = os.listdir('./modelos_entrenados')  
+
+    # Patron de busqueda de coindidencias para saber cuandos modelos tenemos ya creados
+    patron = r'.*\.pkl$'
+    num = 0 # Numero de modelos creados
+
+    for models in archivos:
+        if re.search(patron, models):
+            num += 1        # Asignacion del numero correspondiente al modelo
+
+    name_model = f'model_{num}'
+
+    joblib.dump(model, f'modelos_entrenados/{name_model}.pkl')   # Almacenamos el modelo
+    # ----------------------------------------------------------------------------------
+
+    # Bitacora de las columnas para el modelo
+    with open('./modelos_entrenados/bitacora.txt','a', encoding='utf-8') as bitacora:
+        
+        contenido = f""" 
+        ----------------{name_model}------------------
+        - columns: 
+        {X_cols}
+
+        - Target: {Y_cols}
+
+        - Comentario:
+        {comentario_bitacora}
+
+        """
+
+        bitacora.write(contenido)
+
+
+    # ----------------------------------------------------------------------------------
