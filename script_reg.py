@@ -79,7 +79,13 @@ def analysis_test(x_test, y_test, model_x, sc_y_model):
     rmse = math.sqrt(mean_squared_error(y_original, y_pred))
     max_err = max_error(y_original, y_pred)
 
-    return round(r2,3), round(mape,3), round(rmse,3), round(max_err,3)
+    results = {'R-squared_test': [round(r2,4)], 
+               'MAPE_test':[round(mape,3)],
+               'RMSE_test':[round(rmse,3)],
+               'MAX_ERR_test':[round(max_err,3)]
+               }
+
+    return results
     
 def analysis_train(x_train, y_train, df:pd.DataFrame, target_name:str):
     
@@ -113,7 +119,7 @@ def analysis_train(x_train, y_train, df:pd.DataFrame, target_name:str):
         'Adj. R-squared': adj_r_squared,
         'F-statistic': f_statistic,
         'Prob (F-statistic)': prob_f_statistic,
-        'Coefficients and P-values': dict(zip(columns, zip(coefficients, p_values))),
+        'Coefficients and P-values': [dict(zip(columns, zip(coefficients, p_values)))],
         'Omnibus': omnibus,
         'Prob(Omnibus)': prob_omnibus,
         'Skew': skew,
@@ -125,14 +131,19 @@ def analysis_train(x_train, y_train, df:pd.DataFrame, target_name:str):
 
 
 
-def save_model(model,data: pd.DataFrame, target_name:str, comentario_bitacora = None):
+def save_model(model,
+               analysis_train: dict,
+               analysis_test: dict,
+               X_cols: list, 
+               target_name:str, 
+               comentario_bitacora = None):
     """Esta funcion se encarga de guardar el modelo creado, y ademas almacenar en una bitacora
     los nombres de las columnas que se usaron para el modelo. Por ende es necesario ser especifico
     al momento de crear el nombre de las columnas ya que estas nos daran pistas sobre si sufrieron 
     alguna transformacion respecto a las columnas del dataframe original"""
 
     # Variables independientes y dependiente
-    X_cols = list(set(data.columns) - set([target_name]))
+    X_cols = X_cols
     Y_cols = target_name
 
 
@@ -169,6 +180,39 @@ def save_model(model,data: pd.DataFrame, target_name:str, comentario_bitacora = 
         """
 
         bitacora.write(contenido)
-
-
     # ----------------------------------------------------------------------------------
+
+    # Almacenamiento de metricas de evaluacion
+
+    df_analysis_train = pd.DataFrame(analysis_train)
+    df_analysis_test = pd.DataFrame(analysis_test)
+
+    # Extraer las primeras 3 columnas de df1
+    df1_part1 = df_analysis_train.iloc[:, :4]
+    # Extraer las columnas restantes de df1
+    df1_part2 = df_analysis_train.iloc[:, 4:]
+
+
+    df_name_model = pd.DataFrame({'Num_model':[name_model]})
+
+
+    # Concatenar las primeras 3 columnas de df1, seguido de df2, y luego las columnas restantes de df1
+    df_final = pd.concat([df_name_model,df1_part1, df_analysis_test, df1_part2], axis=1)
+
+    if 'metricas_evaluacion.csv' in archivos:
+        # print('archivo encontrado')
+
+        df_existente = pd.read_csv('./modelos_entrenados/metricas_evaluacion.csv')
+        df_concatenado = pd.concat([df_existente, df_final], ignore_index=True)
+
+        # Guardar el DataFrame resultante en el archivo CSV (sobrescribiendo el archivo original)
+        df_concatenado.to_csv('./modelos_entrenados/metricas_evaluacion.csv', index=False)
+
+    else:
+        # Exportar a CSV
+        df_final.to_csv('./modelos_entrenados/metricas_evaluacion.csv', index=False)  # index=False evita que se guarde el índice
+        # print('csv creado')
+
+    # ----------------------------------------------------------------
+    pd.set_option('display.max_colwidth', None) # Necesario para poder visualizar todo el contenido de la columna de coeficientes
+    return df_final

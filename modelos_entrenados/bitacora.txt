@@ -1,5 +1,41 @@
  
-        ----------------model_11------------------
-        columns: 
-        ['children', 'region_southeast', 'bmi', 'region_southwest', 'smoker_yes', 'region_northwest', 'age', 'sex_male']
+        ----------------model_0------------------
+        - columns: 
+        ['children', 'region_southwest', 'region_northwest', 'sex_male', 'bmi', 'age', 'region_southeast', 'charges', 'smoker_yes']
 
+        - Target: charges
+
+        - Comentario:
+        Esta es una prueba de funciionamiento
+
+         
+        ----------------model_1------------------
+        - columns: 
+        ['children', 'region_southwest', 'region_northwest', 'sex_male', 'bmi', 'age', 'region_southeast', 'charges', 'smoker_yes']
+
+        - Target: charges
+
+        - Comentario:
+        Esta es una prueba de funciionamiento
+
+         
+        ----------------model_2------------------
+        - columns: 
+        ['bmi', 'region_southwest', 'region_northwest', 'region_southeast', 'age', 'smoker_yes', 'sex_male', 'charges', 'children']
+
+        - Target: charges
+
+        - Comentario:
+        Esta es una prueba de funciionamiento
+
+         
+        ----------------model_3------------------
+        - columns: 
+        ['smoker_yes', 'age2', 'sobrepeso*fumador', 'charges', 'children']
+
+        - Target: charges
+
+        - Comentario:
+        Esta es una prueba de funciionamiento
+
+        
